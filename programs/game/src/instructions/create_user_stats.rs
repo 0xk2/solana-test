@@ -6,7 +6,7 @@ pub struct CreateUserStats<'info> {
   #[account(mut)]
   pub user: Signer<'info>,
   #[account(
-    init,
+    init_if_needed,
     payer = user,
     space = UserStats::SPACE,
     seeds = [UserStats::SEED_PREFIX, user.key().as_ref()],

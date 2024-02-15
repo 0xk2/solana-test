@@ -3,7 +3,7 @@ pub use state::*;
 
 pub mod state;
 
-declare_id!("DqDRCk8G6godwe7RsoqQ1c9z1EsA8nkUyYqte1ydCHvT");
+declare_id!("8A93pmBLBa6UBNGEtNV1jBwsus6P71dqX16boo1DvV5k");
 
 #[program]
 pub mod page_logger {
@@ -42,12 +42,13 @@ pub struct Log<'info>{
     pub payer: Signer<'info>,
     #[account(mut, 
         seeds = [ProgramLogger::SEED_PREFIX, program.key().as_ref()], 
-        bump = program_logger.bump)
+        bump)
     ]
     pub program_logger: Account<'info, ProgramLogger>,
+
     #[account(mut, 
         seeds = [AccountLogger::SEED_PREFIX, payer.key().as_ref()], 
-        bump = account_logger.bump)
+        bump)
     ]
     pub account_logger: Account<'info, AccountLogger>,
     /// CHECK: the account is an existing program, should do some check
@@ -67,7 +68,7 @@ pub struct InitProgram<'info> {
     /// CHECK: the account is an existing account program
     program: AccountInfo<'info>,
     #[account(
-        init,
+        init_if_needed,
         space = DISCRIMINATOR_LENGTH + ProgramLogger::INIT_SPACE,
         payer = payer,
         seeds = [
@@ -84,7 +85,7 @@ pub struct InitAccount<'info> {
     #[account(mut)]
     payer: Signer<'info>,
     #[account(
-        init,
+        init_if_needed,
         space = DISCRIMINATOR_LENGTH + AccountLogger::INIT_SPACE,
         payer = payer,
         seeds = [
