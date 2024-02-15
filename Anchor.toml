@@ -1,0 +1,22 @@
+[toolchain]
+
+[features]
+seeds = false
+skip-lint = false
+
+[programs.localnet]
+game = "5znzxUjL37gJFS9zooUq3LznFJgEP9YrkEKYoTcnAkTV"
+page-logger = "DqDRCk8G6godwe7RsoqQ1c9z1EsA8nkUyYqte1ydCHvT"
+puppet = "9przwfW2dXkCX7K8kBmXryic247a5QhLEoQxgyxnGZ9w"
+puppet_master = "3VH2jbsWL1mLCggLbGcS7HKiGT8oZ9PHJBB8uyjzwThi"
+solana_twitter = "3WrQ9mPywBz7RK4ozQWjJ2qGr5gQx3wpx66YH7FciH1j"
+
+[registry]
+url = "https://api.apr.dev"
+
+[provider]
+cluster = "Localnet"
+wallet = "/Users/hieu/.config/solana/id.json"
+
+[scripts]
+test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
