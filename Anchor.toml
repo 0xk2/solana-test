@@ -5,8 +5,8 @@ seeds = false
 skip-lint = false
 
 [programs.localnet]
-game = "EqVAXa5rQwRPzqs4HcHreyymgjFAmjBnSS4eaV6twFwv"
-page-logger = "8A93pmBLBa6UBNGEtNV1jBwsus6P71dqX16boo1DvV5k"
+game = "HMU1Tmv4fAK4Ag6BUu4Dnsox4urEHq1kRzXKzjSCKyYK"
+page-logger = "BMn6FdmDBQbju9faMVirVU8bMfRuxmVLPswBhaxUVD6T"
 
 [registry]
 url = "https://api.apr.dev"

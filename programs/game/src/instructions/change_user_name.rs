@@ -24,17 +24,17 @@ pub struct ChangeUserName<'info> {
 
     #[account(
       mut,
-      seeds = [ProgramLogger::SEED_PREFIX, game_program.key().as_ref()],
-      bump,
-      seeds::program = logger_progam.key()
+      // seeds = [ProgramLogger::SEED_PREFIX, game_program.key().as_ref()],
+      // bump,
+      // seeds::program = logger_progam.key()
     )]
     pub program_pda: Account<'info, ProgramLogger>,
 
     #[account(
     mut,
-    seeds = [AccountLogger::SEED_PREFIX, user.key().as_ref()],
-    bump,
-    seeds::program = logger_progam.key()
+    // seeds = [AccountLogger::SEED_PREFIX, user.key().as_ref()],
+    // bump,
+    // seeds::program = logger_progam.key()
   )]
     pub user_pda: Account<'info, AccountLogger>,
 
@@ -43,39 +43,36 @@ pub struct ChangeUserName<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn change_user_name(
-    ctx: Context<ChangeUserName>,
-    name: String,
-) -> Result<()> {
+pub fn change_user_name(ctx: Context<ChangeUserName>, name: String) -> Result<()> {
     msg!("start changing user name");
-    // let user_stats = &mut ctx.accounts.user_stats;
+    let user_stats = &mut ctx.accounts.user_stats;
     // if name.as_bytes().len() > 200 {
-    //     // proper error handling omitted for brevity
-    //     panic!();
-    // }
-    // user_stats.name = name;
-    // let cpi_accounts = Log {
-    //     payer: ctx.accounts.user.to_account_info(),
-    //     program_logger: ctx.accounts.program_pda.to_account_info(),
-    //     account_logger: ctx.accounts.user_pda.to_account_info(),
-    //     system_program: ctx.accounts.system_program.to_account_info(),
-    //     program: ctx.accounts.game_program.to_account_info(),
-    //     authority: ctx.accounts.user.to_account_info(),
-    // };
 
-    // PDA seeds and bump to "sign" for CPI
-    // TODO: learn to sign CPI with PDA later
-    // let bump = ctx.accounts.authority.bump;
-    // let signer: &[&[&[u8]]] = &[&[b"authority", &[bump]]];
+    // }
+    user_stats.name = name;
+    let cpi_accounts = Log {
+        payer: ctx.accounts.authority.to_account_info(),
+        program_logger: ctx.accounts.program_pda.to_account_info(),
+        account_logger: ctx.accounts.user_pda.to_account_info(),
+        // system_program: ctx.accounts.system_program.to_account_info(),
+        program: ctx.accounts.game_program.to_account_info(),
+        // authority: ctx.accounts.user.to_account_info(),
+    };
+
+    // // PDA seeds and bump to "sign" for CPI
+    // // TODO: learn to sign CPI with PDA later
+    let bump = ctx.accounts.authority.bump;
+    let signer: &[&[&[u8]]] = &[&[b"authority", &[bump]]];
     // usually, an authority is required to sign the CPI
 
-    // let cpi_context = CpiContext::new_with_signer(
-    //   cpi_program,
-    //   cpi_accounts,
-    //   signer
-    // );
-    // let cpi_context = CpiContext::new(cpi_program, cpi_accounts);
-    // TODO: learn to use _rs later
-    // let _rs = page_logger::cpi::log(cpi_context).unwrap();
+    let cpi_context = CpiContext::new_with_signer(
+      ctx.accounts.logger_progam.to_account_info(),
+      cpi_accounts,
+      signer
+    );
+    // let cpi_context = CpiContext::new(ctx.accounts.logger_progam.to_account_info(), cpi_accounts);
+    // // TODO: learn to use _rs later
+    let _rs = page_logger::cpi::log(cpi_context).unwrap();
+
     Ok(())
 }

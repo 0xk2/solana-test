@@ -3,7 +3,7 @@ pub use state::*;
 
 pub mod state;
 
-declare_id!("8A93pmBLBa6UBNGEtNV1jBwsus6P71dqX16boo1DvV5k");
+declare_id!("BMn6FdmDBQbju9faMVirVU8bMfRuxmVLPswBhaxUVD6T");
 
 #[program]
 pub mod page_logger {
@@ -26,12 +26,24 @@ pub mod page_logger {
         Ok(())
     }
 
-    pub fn log(ctx: Context<Log>) -> Result<(u32, u32)> {
-        ctx.accounts.program_logger.increase();
-        ctx.accounts.account_logger.increase();
-        ctx.accounts.program_logger.reload()?;
-        ctx.accounts.account_logger.reload()?;
-        Ok((ctx.accounts.program_logger.view.to_be(), ctx.accounts.account_logger.view.to_be()))
+    pub fn log(ctx: Context<Log>) -> Result<(u8, u32)> {
+       
+        let program_logger: &mut Account<'_, ProgramLogger> = &mut ctx.accounts.program_logger;
+        msg!("Before {}",program_logger.view);
+        program_logger.view +=1;
+        msg!("After {}",program_logger.view);
+
+        let account_logger: &mut Account<'_, AccountLogger> = &mut ctx.accounts.account_logger;
+        msg!("Before {}",account_logger.view);
+        account_logger.increase();
+        msg!("After {}",account_logger.view);
+
+        // ctx.accounts.program_logger.increase();
+        // ctx.accounts.account_logger.increase();
+        // ctx.accounts.program_logger.reload()?;
+        // ctx.accounts.account_logger.reload()?;
+        msg!("Hehe");
+        Ok((ctx.accounts.program_logger.bump.to_be(), ctx.accounts.account_logger.view.to_be()))
     }
 
 }
@@ -40,22 +52,24 @@ pub mod page_logger {
 pub struct Log<'info>{
     #[account(signer)]
     pub payer: Signer<'info>,
-    #[account(mut, 
-        seeds = [ProgramLogger::SEED_PREFIX, program.key().as_ref()], 
-        bump)
+    #[account(mut
+        // seeds = [ProgramLogger::SEED_PREFIX, program.key().as_ref()], 
+        // bump
+    )
     ]
     pub program_logger: Account<'info, ProgramLogger>,
 
-    #[account(mut, 
-        seeds = [AccountLogger::SEED_PREFIX, payer.key().as_ref()], 
-        bump)
+    #[account(mut
+        // seeds = [AccountLogger::SEED_PREFIX, payer.key().as_ref()], 
+        // bump
+    )
     ]
     pub account_logger: Account<'info, AccountLogger>,
     /// CHECK: the account is an existing program, should do some check
     pub program: UncheckedAccount<'info>,
-    pub system_program: Program<'info, System>,
-    /// CHECK: used as signer
-    pub authority: UncheckedAccount<'info>,
+    // pub system_program: Program<'info, System>,
+    // /// CHECK: used as signer
+    // pub authority: UncheckedAccount<'info>,
 } 
 
 // NOTE: to use variables from instruction as seeds

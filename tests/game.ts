@@ -71,6 +71,24 @@ describe('game', () => {
       .rpc();
     console.log('*** *** create authority: ', authority.toBase58(), '**');
 
+    const txTest = await loggerProgram.methods
+      .log()
+      .accounts({
+        payer: anchorProvider.wallet.publicKey,
+        programLogger: gamePDA,
+        accountLogger: userPDA,
+        program: gameProgram.programId,
+      })
+      .rpc({ skipPreflight: true });
+
+    console.log('Call Log', txTest);
+    expect(
+      (await loggerProgram.account.accountLogger.fetch(userPDA)).view
+    ).to.equal(1);
+    expect(
+      (await loggerProgram.account.programLogger.fetch(gamePDA)).view
+    ).to.equal(1);
+
     const [userStatsPDA, _] = PublicKey.findProgramAddressSync(
       [Buffer.from('user_stats'), anchorProvider.wallet.publicKey.toBuffer()],
       gameProgram.programId
@@ -90,28 +108,54 @@ describe('game', () => {
     console.log(gamePDA.toString());
 
     // Everytime user change the name, invoke logger program
-    await gameProgram.methods
-      .changeUserName('tom', bumpGame, bumpUser)
+    const tx = await gameProgram.methods
+      .changeUserName('tom')
       .accounts({
         user: anchorProvider.wallet.publicKey,
         userStats: userStatsPDA,
         systemProgram: anchor.web3.SystemProgram.programId,
-        authority: authority, 
+        authority: authority,
         programPda: gamePDA,
         userPda: userPDA,
         loggerProgam: loggerProgram.programId,
         gameProgram: gameProgram.programId,
       })
-      .rpc();
+      .rpc({ skipPreflight: true });
+    console.log(tx);
 
-    // expect(
-    //   (await gameProgram.account.userStats.fetch(userStatsPDA)).name
-    // ).to.equal('tom');
-    // expect(
-    //   (await loggerProgram.account.accountLogger.fetch(userPDA)).view
-    // ).to.equal(1);
-    // expect(
-    //   (await loggerProgram.account.programLogger.fetch(gamePDA)).view
-    // ).to.equal(1);
+    expect(
+      (await gameProgram.account.userStats.fetch(userStatsPDA)).name
+    ).to.equal('tom');
+    expect(
+      (await loggerProgram.account.accountLogger.fetch(userPDA)).view
+    ).to.equal(2);
+    expect(
+      (await loggerProgram.account.programLogger.fetch(gamePDA)).view
+    ).to.equal(2);
+
+    // Everytime user change the name, invoke logger program
+    await gameProgram.methods
+      .changeUserName('chau')
+      .accounts({
+        user: anchorProvider.wallet.publicKey,
+        userStats: userStatsPDA,
+        systemProgram: anchor.web3.SystemProgram.programId,
+        authority: authority,
+        programPda: gamePDA,
+        userPda: userPDA,
+        loggerProgam: loggerProgram.programId,
+        gameProgram: gameProgram.programId,
+      })
+      .rpc({ skipPreflight: true });
+
+    expect(
+      (await gameProgram.account.userStats.fetch(userStatsPDA)).name
+    ).to.equal('chau');
+    expect(
+      (await loggerProgram.account.accountLogger.fetch(userPDA)).view
+    ).to.equal(3);
+    expect(
+      (await loggerProgram.account.programLogger.fetch(gamePDA)).view
+    ).to.equal(3);
   });
 });

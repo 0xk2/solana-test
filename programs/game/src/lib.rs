@@ -5,7 +5,7 @@ use state::Authority;
 pub mod instructions;
 pub mod state;
 
-declare_id!("EqVAXa5rQwRPzqs4HcHreyymgjFAmjBnSS4eaV6twFwv");
+declare_id!("HMU1Tmv4fAK4Ag6BUu4Dnsox4urEHq1kRzXKzjSCKyYK");
 
 #[program]
 pub mod game {
