@@ -9,17 +9,17 @@ use page_logger::{self, AccountLogger, ProgramLogger};
 pub struct ChangeUserName<'info> {
     pub user: Signer<'info>,
     #[account(
-    mut,
-    seeds = [UserStats::SEED_PREFIX, user.key().as_ref()],
-    bump = user_stats.bump,
-  )]
+      mut,
+      seeds = [UserStats::SEED_PREFIX, user.key().as_ref()],
+      bump = user_stats.bump,
+    )]
     pub user_stats: Account<'info, UserStats>,
 
     #[account(
-    mut,
-    seeds = [b"authority"],
-    bump = authority.bump
-  )]
+      mut,
+      seeds = [b"authority"],
+      bump = authority.bump
+    )]
     pub authority: Account<'info, Authority>,
 
     #[account(
@@ -31,11 +31,11 @@ pub struct ChangeUserName<'info> {
     pub program_pda: Account<'info, ProgramLogger>,
 
     #[account(
-    mut,
-    // seeds = [AccountLogger::SEED_PREFIX, user.key().as_ref()],
-    // bump,
-    // seeds::program = logger_progam.key()
-  )]
+      mut,
+      // seeds = [AccountLogger::SEED_PREFIX, user.key().as_ref()],
+      // bump,
+      // seeds::program = logger_progam.key()
+    )]
     pub user_pda: Account<'info, AccountLogger>,
 
     pub logger_progam: Program<'info, PageLogger>,
@@ -71,8 +71,11 @@ pub fn change_user_name(ctx: Context<ChangeUserName>, name: String) -> Result<()
       signer
     );
     // let cpi_context = CpiContext::new(ctx.accounts.logger_progam.to_account_info(), cpi_accounts);
-    // // TODO: learn to use _rs later
     let _rs = page_logger::cpi::log(cpi_context).unwrap();
-
+    // NOTE: if I need to read program_logger and account_logger then I need reload()
+    // otherwise I am good
+    msg!("in change_user_name, value: {} {}; now change game's PDA",_rs.get().0,_rs.get().1);
+    user_stats.level = _rs.get().0+_rs.get().1;
+    msg!("set level to {}",_rs.get().0+_rs.get().1);
     Ok(())
 }

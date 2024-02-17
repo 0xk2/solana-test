@@ -18,7 +18,8 @@ describe('game', () => {
 
   it('Set and changes name!', async () => {
     console.log(anchorProvider.wallet.publicKey.toString());
-
+    /* setup PDA
+     */
     const [gamePDA, bumpGame] = PublicKey.findProgramAddressSync(
       [Buffer.from('program_visit'), gameProgram.programId.toBuffer()],
       loggerProgram.programId
@@ -36,8 +37,10 @@ describe('game', () => {
       [Buffer.from('authority')],
       gameProgram.programId
     );
-
-    console.log('** setup game program account in PageLogger');
+    /* end seting up PDA
+     */
+    /* init PDA
+     */
     await loggerProgram.methods
       .initProgram()
       .accounts({
@@ -46,13 +49,7 @@ describe('game', () => {
         payer: anchorProvider.wallet.publicKey,
       })
       .rpc();
-    console.log(
-      'finish setup game program account: ',
-      gamePDA.toBase58(),
-      '**'
-    );
-
-    console.log('** setup user account in PageLogger');
+    console.log('** gamePDA: ', gamePDA.toBase58(), '**');
     await loggerProgram.methods
       .initAccount()
       .accounts({
@@ -60,7 +57,7 @@ describe('game', () => {
         accountLogger: userPDA,
       })
       .rpc();
-    console.log('finish setup account program: ', userPDA.toBase58(), '**');
+    console.log('** userPDA: ', userPDA.toBase58(), '**');
 
     await gameProgram.methods
       .initAuthority()
@@ -69,9 +66,9 @@ describe('game', () => {
         authority: authority,
       })
       .rpc();
-    console.log('*** *** create authority: ', authority.toBase58(), '**');
+    console.log('*** authorityPDA for signing: ', authority.toBase58(), '**');
 
-    const txTest = await loggerProgram.methods
+    const tx1 = await loggerProgram.methods
       .log()
       .accounts({
         payer: anchorProvider.wallet.publicKey,
@@ -81,7 +78,7 @@ describe('game', () => {
       })
       .rpc({ skipPreflight: true });
 
-    console.log('Call Log', txTest);
+    console.log('init logging', tx1);
     expect(
       (await loggerProgram.account.accountLogger.fetch(userPDA)).view
     ).to.equal(1);
@@ -93,7 +90,6 @@ describe('game', () => {
       [Buffer.from('user_stats'), anchorProvider.wallet.publicKey.toBuffer()],
       gameProgram.programId
     );
-
     await gameProgram.methods
       .createUserStats('brian')
       .accounts({
@@ -105,10 +101,9 @@ describe('game', () => {
       (await gameProgram.account.userStats.fetch(userStatsPDA)).name
     ).to.equal('brian');
     console.log('created brian user stats');
-    console.log(gamePDA.toString());
 
     // Everytime user change the name, invoke logger program
-    const tx = await gameProgram.methods
+    const tx2 = await gameProgram.methods
       .changeUserName('tom')
       .accounts({
         user: anchorProvider.wallet.publicKey,
@@ -121,8 +116,7 @@ describe('game', () => {
         gameProgram: gameProgram.programId,
       })
       .rpc({ skipPreflight: true });
-    console.log(tx);
-
+    console.log('tx_first cpi: ', tx2);
     expect(
       (await gameProgram.account.userStats.fetch(userStatsPDA)).name
     ).to.equal('tom');
@@ -134,7 +128,7 @@ describe('game', () => {
     ).to.equal(2);
 
     // Everytime user change the name, invoke logger program
-    await gameProgram.methods
+    const tx3 = await gameProgram.methods
       .changeUserName('chau')
       .accounts({
         user: anchorProvider.wallet.publicKey,
@@ -147,6 +141,7 @@ describe('game', () => {
         gameProgram: gameProgram.programId,
       })
       .rpc({ skipPreflight: true });
+    console.log('2nd cpi:', tx3);
 
     expect(
       (await gameProgram.account.userStats.fetch(userStatsPDA)).name
@@ -157,5 +152,8 @@ describe('game', () => {
     expect(
       (await loggerProgram.account.programLogger.fetch(gamePDA)).view
     ).to.equal(3);
+    expect(
+      (await gameProgram.account.userStats.fetch(userStatsPDA)).level
+    ).to.equal(6);
   });
 });

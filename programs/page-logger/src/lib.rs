@@ -3,7 +3,7 @@ pub use state::*;
 
 pub mod state;
 
-declare_id!("BMn6FdmDBQbju9faMVirVU8bMfRuxmVLPswBhaxUVD6T");
+declare_id!("ADZtHbxpEDvDJANmKcKVzhrH25KkUf7qc7Ysvm57MGdA");
 
 #[program]
 pub mod page_logger {
@@ -26,24 +26,18 @@ pub mod page_logger {
         Ok(())
     }
 
-    pub fn log(ctx: Context<Log>) -> Result<(u8, u32)> {
-       
+    pub fn log(ctx: Context<Log>) -> Result<(u32, u32)> {
+        ctx.accounts.program_logger.reload()?;
+        ctx.accounts.account_logger.reload()?;
         let program_logger: &mut Account<'_, ProgramLogger> = &mut ctx.accounts.program_logger;
-        msg!("Before {}",program_logger.view);
-        program_logger.view +=1;
-        msg!("After {}",program_logger.view);
-
         let account_logger: &mut Account<'_, AccountLogger> = &mut ctx.accounts.account_logger;
-        msg!("Before {}",account_logger.view);
-        account_logger.increase();
-        msg!("After {}",account_logger.view);
 
-        // ctx.accounts.program_logger.increase();
-        // ctx.accounts.account_logger.increase();
-        // ctx.accounts.program_logger.reload()?;
-        // ctx.accounts.account_logger.reload()?;
-        msg!("Hehe");
-        Ok((ctx.accounts.program_logger.bump.to_be(), ctx.accounts.account_logger.view.to_be()))
+        program_logger.increase();
+        account_logger.increase();
+
+        msg!("program_logger After {}",program_logger.view);
+        msg!("account_logger After {}",account_logger.view);
+        Ok((ctx.accounts.program_logger.view, ctx.accounts.account_logger.view))
     }
 
 }

@@ -5,15 +5,15 @@ seeds = false
 skip-lint = false
 
 [programs.localnet]
-game = "HMU1Tmv4fAK4Ag6BUu4Dnsox4urEHq1kRzXKzjSCKyYK"
-page-logger = "BMn6FdmDBQbju9faMVirVU8bMfRuxmVLPswBhaxUVD6T"
+game = "H2SxQEGFny7Z71ZSgFkrVPisYoqN9KKTRN9ZUzWaidwg"
+page-logger = "ADZtHbxpEDvDJANmKcKVzhrH25KkUf7qc7Ysvm57MGdA"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
 cluster = "Localnet"
-wallet = "/Users/admin/.config/solana/id.json"
+wallet = "/Users/hieu/.config/solana/id.json"
 
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
